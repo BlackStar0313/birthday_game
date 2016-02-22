@@ -1,0 +1,52 @@
+
+#python cache
+__pycache__
+
+#script package things, should generate while build
+script.package
+script.log
+
+#ios project
+xcuserdata
+
+#android project
+platform/android/java/bin
+platform/android/java/gen
+platform/android/java/obj
+
+gdb*
+local.properties
+
+#windows phone
+Debug
+Release
+*.sdf
+*.suo
+*.opensdf
+*.ipch
+*.user
+
+#eclipse workspace meta
+.metadata
+
+#ui binary file
+*.buipj
+*.dri
+*.drf
+
+#merge temp file
+*.orig
+
+#other
+nohup.out
+
+#scheme
+*.xcscheme
+
+#xls temp file
+~$*.*
+
+#ignore all svn repo
+.svn
+svn-repo
+

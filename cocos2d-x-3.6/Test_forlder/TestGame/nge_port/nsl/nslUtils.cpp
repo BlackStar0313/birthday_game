@@ -1,0 +1,488 @@
+#include <nsl/nslUtils.h>
+#include <core/NGE_Defs.h>
+
+uint8 s_to_lower_map[256] = {
+	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+	0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F,
+	0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F,
+	0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F,
+	0x40, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F,
+	0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F,
+	0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F,
+	0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7D, 0x7E, 0x7F,
+	0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F,
+	0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F,
+	0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF,
+	0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD, 0xBE, 0xBF,
+	0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF,
+	0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xDF,
+	0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0xED, 0xEE, 0xEF,
+	0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF,
+};
+
+uint8 s_to_upper_map[256] = {
+	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+	0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F,
+	0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F,
+	0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F,
+	0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F,
+	0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F,
+	0x60, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F,
+	0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x7B, 0x7C, 0x7D, 0x7E, 0x7F,
+	0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F,
+	0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F,
+	0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF,
+	0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD, 0xBE, 0xBF,
+	0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF,
+	0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xDF,
+	0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0xED, 0xEE, 0xEF,
+	0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF,
+};
+
+uint32 strHashCode(const char* pStr)
+{
+	uint32 nHashCode = 0;
+	int len = strlen(pStr);
+	for (int i = 0; i < len; i ++) {
+		nHashCode = nHashCode * 31 + (0xFF & pStr[i]);
+	}
+
+	return nHashCode;
+}
+
+uint32 strIHashCode(const char* pStr)
+{
+	uint32 nHashCode = 0;
+	int len = strlen(pStr);
+	for (int i = 0; i < len; i ++) {
+		nHashCode = nHashCode * 31 + (0xFF & s_to_lower_map[pStr[i]]);
+	}
+
+	return nHashCode;
+}
+
+
+uint32 Utf8ToWcs( const uint8 *pIn, uint32 utflen, wchar *szDest, uint32 buflen )
+{
+    int c, char2, char3;
+    uint32 count = 0;
+    uint32 strlen = 0;
+ 	boolean error = FALSE;
+	
+	if( pIn != NULL && szDest != NULL && buflen > 0 )
+	{
+		while ( !error && count < utflen && strlen < buflen - 1 ) 
+		{
+			c = (int) pIn[count] & 0xff;
+			
+			switch ( c >> 4 ) 
+			{
+				case 0: 
+				case 1: 
+				case 2: 
+				case 3: 
+				case 4: 
+				case 5: 
+				case 6: 
+				case 7:
+					/* 0xxxxxxx*/
+					count++;
+					szDest[strlen++] = (wchar)c;
+					break;
+					
+				case 12: 
+				case 13:
+					/* 110x xxxx   10xx xxxx*/
+					count += 2;
+					if (count > utflen)
+					{
+						error = TRUE;
+						break;
+					}
+					char2 = (int) pIn[count-1];
+					if ((char2 & 0xC0) != 0x80)
+					{
+						error = TRUE;
+						break;
+					}
+					szDest[strlen++] = (wchar)(((c & 0x1F) << 6) | (char2 & 0x3F));
+					break;
+					
+				case 14:
+					/* 1110 xxxx  10xx xxxx  10xx xxxx */
+					count += 3;
+					if (count > utflen)
+					{
+						error = TRUE;
+						break;
+					}
+					char2 = (int) pIn[count-2];
+					char3 = (int) pIn[count-1];
+					if (((char2 & 0xC0) != 0x80) || ((char3 & 0xC0) != 0x80))
+					{
+						error = TRUE;
+						break;
+					}
+					szDest[strlen++] = (wchar) (((c & 0x0F) << 12) |
+												((char2 & 0x3F) << 6)  |
+												((char3 & 0x3F) << 0));
+					break;
+					
+				default:
+					error = TRUE;
+					break;
+			};
+		}
+		
+		// calculate the output length
+		strlen = error ? 0 : strlen;
+		
+		// null-terminate the output string
+		szDest[strlen] = 0;
+	}
+	
+	return strlen;
+}
+
+
+uint32 WcsToUtf8( const wchar *szIn, uint32 wcslen, uint8 *pDest, uint32 buflen )
+{
+    uint32 utflen = 0; 
+	
+	if( szIn != NULL && pDest != NULL )
+	{
+		uint32 count = 0;
+		
+		for ( uint32 i = 0; i < wcslen && count < buflen - 1; i++ ) 
+		{
+			int c = (int) szIn[i];
+			if( c == 0x0000 )
+			{
+				pDest[count] = 0;
+				break;
+			}
+			if ((c >= 0x0001) && (c <= 0x007F)) 
+			{
+				pDest[count++] = (uint8) c;
+			} 
+			else if (c > 0x07FF) 
+			{
+				if( count + 3 > buflen - 1 )
+				{
+					break;
+				}
+				
+				pDest[count++] = (uint8) (0xE0 | ((c >> 12) & 0x0F));
+				pDest[count++] = (uint8) (0x80 | ((c >>  6) & 0x3F));
+				pDest[count++] = (uint8) (0x80 | ((c >>  0) & 0x3F));
+			} 
+			else 
+			{
+				if( count + 2 > buflen - 1 )
+				{
+					break;
+				}
+				
+				pDest[count++] = (uint8) (0xC0 | ((c >>  6) & 0x1F));
+				pDest[count++] = (uint8) (0x80 | ((c >>  0) & 0x3F));
+			}
+		}
+		
+		// output length
+		utflen = count;
+		
+		// null-terminate the output string
+		pDest[utflen] = 0;
+	}
+	
+    return utflen;
+}
+
+uint32 Utf8ToWcs(const char *pInStr, wchar*& pOutWStr)
+{
+	uint32 wcslen = 0;
+	
+	if (pInStr)
+	{
+		uint32 utflen = strlen(pInStr);
+		wcslen = GetWcsLen((const uint8*)pInStr, utflen);
+		pOutWStr = DNEWARR(wchar, wcslen + 1);
+		Utf8ToWcs((const uint8*)pInStr, utflen, pOutWStr, wcslen + 1);
+	}
+	
+	return wcslen;
+}
+
+uint32 WcsToUtf8(const wchar *pInWStr, char*& pOutStr)
+{
+	uint32 utflen = 0;
+	if (pInWStr)
+	{
+		uint32 strlen = wcslen(pInWStr);
+		utflen = GetUtfLen(pInWStr, strlen);
+		pOutStr = DNEWARR(char, utflen + 1);
+		WcsToUtf8(pInWStr, strlen, (uint8 *)pOutStr, utflen + 1);
+	}
+	
+	return utflen;
+}
+
+
+uint32 GetUtfLen( const wchar *szIn, uint32 wcslen )
+{
+	uint32 utflen = 0;
+	
+	if( szIn != NULL )
+	{
+		for ( uint32 i = 0; i < wcslen; i++ ) 
+		{
+			int c = (int) szIn[i];
+			if( c == 0x0000 )
+			{
+				break;
+			}
+			else if ((c >= 0x0001) && (c <= 0x007F)) 
+			{
+				utflen++;
+			} 
+			else if (c > 0x07FF) 
+			{
+				utflen += 3;
+			} 
+			else 
+			{
+				utflen += 2;
+			}
+		}
+	}
+	
+	return utflen;
+}
+
+
+uint32 GetWcsLen( const uint8 *pIn, uint32 utflen )
+{
+	uint32 wcslen = 0;
+	boolean error = FALSE;
+	
+	if( pIn != NULL )
+	{
+		uint32 count = 0;
+		int c, char2, char3;
+		
+		while ( count < utflen ) 
+		{
+			c = (int) pIn[count] & 0xff;
+			switch ( c >> 4 ) 
+			{
+				case 0: 
+				case 1: 
+				case 2: 
+				case 3: 
+				case 4: 
+				case 5: 
+				case 6: 
+				case 7:
+					/* 0xxxxxxx*/
+					count++;
+					wcslen++;
+					break;
+					
+				case 12: 
+				case 13:
+					/* 110x xxxx   10xx xxxx*/
+					count += 2;
+					if (count > utflen)
+					{
+						error = TRUE;
+						break;
+					}
+					char2 = (int) pIn[count-1];
+					if ((char2 & 0xC0) != 0x80)
+					{
+						error = TRUE;
+						break;
+					}
+					wcslen++;
+					break;
+					
+				case 14:
+					/* 1110 xxxx  10xx xxxx  10xx xxxx */
+					count += 3;
+					if (count > utflen)
+					{
+						error = TRUE;
+						break;
+					}
+					char2 = (int) pIn[count-2];
+					char3 = (int) pIn[count-1];
+					if (((char2 & 0xC0) != 0x80) || ((char3 & 0xC0) != 0x80))
+				{
+					error = TRUE;
+					break;
+				}
+				wcslen++;
+				break;
+
+			default:
+                count++;
+				error = TRUE;
+				break;
+			};
+            
+            if (error) {
+                break;
+            }
+		}
+    }
+
+	// no output if something got screwed up
+	if( error )
+	{
+		wcslen = 0;
+	}
+
+	return wcslen;
+}
+
+char* GetAsciiFromString(ngString& str)
+{
+	char* pBuff = NULL;
+	WcsToUtf8(str.GetWcs(), pBuff);
+	return pBuff;
+}
+
+void Swap(int32& a, int32& b)
+{
+	int32 temp = a;
+	a = b;
+	b = temp;
+}
+
+void Swap(float& a, float& b)
+{
+    float temp = a;
+    a = b;
+    b = temp;
+}
+
+#if 0 //port to cocos2dx
+//deprecated in cocos2dx port
+int32 ComposeTransform(int32 first, int32 second)
+{
+	return ( first ^ (
+					  (  second                                                   & TRANSPOSE ) |
+					  ( (second << ( first >> SHIFT_TRANSPOSE ) ) & FLIP_X    ) |
+					  ( (second >> ( first >> SHIFT_TRANSPOSE ) ) & FLIP_Y    )
+					  ));
+}
+
+void TranslatePosWithTransformAndAlign(int32 transform, float& x, float& y, int32 w, int32 h, int32 align)
+{
+	if ((transform & TRANS_MIRROR_ROT270) != 0)
+	{
+		int32 temp = w;
+		w = h;
+		h = temp;
+	}
+	
+	if ((align & IMAGE_ALIGN_HCENTER) != 0)
+	{
+		x -= w / 2;
+	}
+	else if ((align & IMAGE_ALIGN_RIGHT) != 0)
+	{
+		x -= w;
+	}
+	
+	if ((align & IMAGE_ALIGN_VCENTER) != 0)
+	{
+		y -= h / 2;
+	}
+	else if ((align & IMAGE_ALIGN_BOTTOM) != 0)
+	{
+		y -= h;
+	}
+}
+
+void TranslatePosWithTransformAndAlign(int32 transform, int32& x, int32& y, int32 w, int32 h, int32 align)
+{
+	if ((transform & TRANS_MIRROR_ROT270) != 0)
+	{
+		int32 temp = w;
+		w = h;
+		h = temp;
+	}
+	
+	if ((align & IMAGE_ALIGN_HCENTER) != 0)
+	{
+		x -= w >> 1;
+	}
+	else if ((align & IMAGE_ALIGN_RIGHT) != 0)
+	{
+		x -= w;
+	}
+	
+	if ((align & IMAGE_ALIGN_VCENTER) != 0)
+	{
+		y -= h >> 1;
+	}
+	else if ((align & IMAGE_ALIGN_BOTTOM) != 0)
+	{
+		y -= h;
+	}
+}
+
+void TranslatePosWithAlign(float& x, float& y, float width, float height, int32 align)
+{	
+	if ((align & IMAGE_ALIGN_HCENTER) != 0)
+	{
+		x -= width / 2;
+	}
+	else if ((align & IMAGE_ALIGN_RIGHT) != 0)
+	{
+		x -= width;
+	}
+	
+	if ((align & IMAGE_ALIGN_VCENTER) != 0)
+	{
+		y -= height / 2;
+	}
+	else if ((align & IMAGE_ALIGN_BOTTOM) != 0)
+	{
+		y -= height;
+	}
+}
+
+void TranslatePosWithAlign(int32& x, int32& y, int32 width, int32 height, int32 align)
+{
+    if ((align & IMAGE_ALIGN_HCENTER) != 0)
+	{
+		x -= width >> 1;
+	}
+	else if ((align & IMAGE_ALIGN_RIGHT) != 0)
+	{
+		x -= width;
+	}
+	
+	if ((align & IMAGE_ALIGN_VCENTER) != 0)
+	{
+		y -= height >> 1;
+	}
+	else if ((align & IMAGE_ALIGN_BOTTOM) != 0)
+	{
+		y -= height;
+	}
+
+}
+#endif
+
+int32 HashBytes( const char* begin, const char* end)
+{
+	int32 hash = HASH_BASE;
+	
+	for( const char* it = begin; it != end; ++it )
+		hash = ((hash << 5) + hash) + *it; /* hash * 33 + *it */
+	
+	return hash;
+}

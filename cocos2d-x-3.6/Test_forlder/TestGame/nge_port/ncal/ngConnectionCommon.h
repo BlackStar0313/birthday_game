@@ -1,0 +1,34 @@
+/*
+*  ngConnectionCommon.h
+*  NextGenEngine
+*
+*  Created by cooler on 10-5-19.
+*  Copyright 2010 DreaminGame. All rights reserved.
+*
+*/
+
+#ifndef __NGCONNECTIONCOMMON_H__
+#define __NGCONNECTIONCOMMON_H__
+
+#include <core/NGE_Types.h>
+
+typedef enum {
+	NGCONN_UNKNOWN = -1,
+	NGCONN_SUCCESS = 0,
+	NGCONN_CONNECTION_FAIL,
+	NGCONN_INVALID_RESPONSE,
+	NGCONN_TIMEOUT,
+} NG_CONNECTION_ERROR;
+
+typedef enum {
+	SESSION_IDLE = 0,
+	SESSION_CONNECTING,
+	SESSION_CONNECTED,
+	SESSION_RESPONSE,
+	SESSION_RECEIVING,
+	SESSION_FINISH,
+	SESSION_ERROR,
+	SESSION_USELESS,
+} NG_SESSION_STATUS;
+
+#endif //__NGCONNECTIONCOMMON_H__
